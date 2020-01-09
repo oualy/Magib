@@ -3,11 +3,9 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\UtilisateurRepository")
  */
 class Utilisateur implements UserInterface
@@ -36,9 +34,9 @@ class Utilisateur implements UserInterface
     private $password;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Roles", inversedBy="utilisateurs")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Role", inversedBy="utilisateurs")
      */
-    private $utilisateur;
+    private $role;
 
     public function getId(): ?int
     {
@@ -113,14 +111,14 @@ class Utilisateur implements UserInterface
         // $this->plainPassword = null;
     }
 
-    public function getUtilisateur(): ?Roles
+    public function getRole(): ?Role
     {
-        return $this->utilisateur;
+        return $this->role;
     }
 
-    public function setUtilisateur(?Roles $utilisateur): self
+    public function setRole(?Role $role): self
     {
-        $this->utilisateur = $utilisateur;
+        $this->role = $role;
 
         return $this;
     }

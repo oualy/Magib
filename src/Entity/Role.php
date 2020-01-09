@@ -9,9 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource()
- * @ORM\Entity(repositoryClass="App\Repository\RolesRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\RoleRepository")
  */
-class Roles
+class Role
 {
     /**
      * @ORM\Id()
@@ -23,10 +23,10 @@ class Roles
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $nom;
+    private $nomrole;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Utilisateur", mappedBy="utilisateur")
+     * @ORM\OneToMany(targetEntity="App\Entity\Utilisateur", mappedBy="role")
      */
     private $utilisateurs;
 
@@ -40,14 +40,14 @@ class Roles
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getNomrole(): ?string
     {
-        return $this->nom;
+        return $this->nomrole;
     }
 
-    public function setNom(string $nom): self
+    public function setNomrole(string $nomrole): self
     {
-        $this->nom = $nom;
+        $this->nomrole = $nomrole;
 
         return $this;
     }
@@ -64,7 +64,7 @@ class Roles
     {
         if (!$this->utilisateurs->contains($utilisateur)) {
             $this->utilisateurs[] = $utilisateur;
-            $utilisateur->setUtilisateur($this);
+            $utilisateur->setRole($this);
         }
 
         return $this;
@@ -75,8 +75,8 @@ class Roles
         if ($this->utilisateurs->contains($utilisateur)) {
             $this->utilisateurs->removeElement($utilisateur);
             // set the owning side to null (unless already changed)
-            if ($utilisateur->getUtilisateur() === $this) {
-                $utilisateur->setUtilisateur(null);
+            if ($utilisateur->getRole() === $this) {
+                $utilisateur->setRole(null);
             }
         }
 
