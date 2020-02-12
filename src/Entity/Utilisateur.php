@@ -3,14 +3,30 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
+ * @ApiResource(normalizationContext={"groups"={"read"}},
+ *             denormalizationContext={"groups"={"write"}},
+ * 
+ * collectionOperations={
+ *         "get",
+ *         "post"={"security"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     itemOperations={
+ *         "get",
+ *         "put"={"security"="is_granted('ROLE_SUPER_ADMIN')"},
+ *     })
  * @ORM\Entity(repositoryClass="App\Repository\UtilisateurRepository")
  */
 class Utilisateur implements UserInterface
 {
     /**
+     * 
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -34,9 +50,47 @@ class Utilisateur implements UserInterface
     private $password;
 
     /**
+     *  @Groups({"read","write"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Role", inversedBy="utilisateurs")
      */
     private $role;
+
+    /**
+     * @Groups({"read","write"})
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nomcomplet;
+
+    /**
+     * @Groups({"read","write"})
+     * @ORM\Column(type="boolean", length=255)
+     */
+    private $isactive;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Compte", mappedBy="usercreateur")
+     */
+    private $compte;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="depot")
+     */
+    private $depots;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="utilisateur")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $partenaire;
+
+   
+
+    
+    public function __construct()
+    {
+        $this->compte = new ArrayCollection();
+        $this->depots = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -67,7 +121,6 @@ class Utilisateur implements UserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
@@ -122,4 +175,109 @@ class Utilisateur implements UserInterface
 
         return $this;
     }
+
+    public function getNomcomplet(): ?string
+    {
+        return $this->nomcomplet;
+    }
+
+    public function setNomcomplet(string $nomcomplet): self
+    {
+        $this->nomcomplet = $nomcomplet;
+
+        return $this;
+    }
+
+    public function getIsactive(): ? bool
+    {
+        return $this->isactive;
+    }
+
+    public function setIsactive(bool $isactive): self
+    {
+        $this->isactive = $isactive;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Compte[]
+     */
+    public function getCompte(): Collection
+    {
+        return $this->compte;
+    }
+
+    public function addCompte(Compte $compte): self
+    {
+        if (!$this->compte->contains($compte)) {
+            $this->compte[] = $compte;
+            $compte->setUsercreateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompte(Compte $compte): self
+    {
+        if ($this->compte->contains($compte)) {
+            $this->compte->removeElement($compte);
+            // set the owning side to null (unless already changed)
+            if ($compte->getUsercreateur() === $this) {
+                $compte->setUsercreateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Depot[]
+     */
+    public function getDepots(): Collection
+    {
+        return $this->depots;
+    }
+
+    public function addDepot(Depot $depot): self
+    {
+        if (!$this->depots->contains($depot)) {
+            $this->depots[] = $depot;
+            $depot->setDepot($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepot(Depot $depot): self
+    {
+        if ($this->depots->contains($depot)) {
+            $this->depots->removeElement($depot);
+            // set the owning side to null (unless already changed)
+            if ($depot->getDepot() === $this) {
+                $depot->setDepot(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPartenaire(): ?Partenaire
+    {
+        return $this->partenaire;
+    }
+
+    public function setPartenaire(?Partenaire $partenaire): self
+    {
+        $this->partenaire = $partenaire;
+
+        return $this;
+    }
+
+  
+    
+  
+
+   
+     
 }

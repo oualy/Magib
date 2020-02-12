@@ -1,7 +1,13 @@
 security:
     encoders:
         App\Entity\Utilisateur:
-            algorithm: auto
+            algorithm: bcrypt
+      
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_CAISSIER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+
+
 
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
@@ -10,12 +16,21 @@ security:
             entity:
                 class: App\Entity\Utilisateur
                 property: username
+        # used to reload user from session & other features (e.g. switch_user)
+        # used to reload user from session & other features (e.g. switch_user)
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
+
+        login:
+            pattern:  ^/login
+            stateless: true
             anonymous: true
+            json_login:
+                check_path: /login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
